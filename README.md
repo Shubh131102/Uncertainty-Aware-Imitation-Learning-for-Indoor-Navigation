@@ -90,60 +90,37 @@ Tested across three distinct environments without retraining:
 Uncertainty scales appropriately with environment complexity, demonstrating calibrated confidence estimation.
 
 ## Installation
+
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/uncertainty-aware-navigation.git
-cd uncertainty-aware-navigation
-
-# Create ROS workspace
-mkdir -p ~/nav_ws/src
-cd ~/nav_ws/src
-ln -s /path/to/uncertainty-aware-navigation .
-
-# Install dependencies
-cd ~/nav_ws
-rosdep install --from-paths src --ignore-src -r -y
+git clone https://github.com/Shubh131102/Uncertainty-Aware-Imitation-Learning-for-Indoor-Navigation.git
+cd Uncertainty-Aware-Imitation-Learning-for-Indoor-Navigation
 pip install -r requirements.txt
-
-# Build
-colcon build --packages-select uncertainty_nav
-source install/setup.bash
 ```
 
 ## Usage
 
-**Collect Expert Demonstrations**
 ```bash
-ros2 launch uncertainty_nav collect_demos.launch.py
-```
+# Prepare demonstration data
+python3 scripts/data_prep.py
 
-**Train Initial Model**
-```bash
-python3 scripts/train_bc.py --data data/expert_demos --epochs 100
-```
+# Train the PyTorch Conv1D policy with MC Dropout
+python3 training/src/train.py --arch conv1d --epochs 100
 
-**Run DAgger Refinement**
-```bash
-python3 scripts/train_dagger.py --iterations 10 --beta-decay 0.9
-```
-
-**Deploy Navigation System**
-```bash
-ros2 launch uncertainty_nav navigation.launch.py model:=models/dagger_final.pth
+# Train and evaluate the baseline behavior-cloning model
+python3 scripts/train.py --data data --plot
+python3 scripts/eval.py --model models/bc_mlp.joblib --data data
 ```
 
 ## Repository Structure
-```
-uncertainty_nav/
-├── config/               Navigation and training parameters
-├── data/                 Expert demonstrations and logs
-├── launch/               ROS launch files
-├── models/               Neural network definitions
-├── scripts/              Training and evaluation scripts
-├── src/                  ROS nodes (controller, perception, safety)
-├── worlds/               Gazebo simulation environments
-└── docs/                 Technical report and presentation
-```
+
+| Path | Contents |
+|---|---|
+| `training/src/model.py` | Conv1D policy with MC Dropout uncertainty (`predict_with_uncertainty`) |
+| `training/src/dataset.py` | Dataset loading for LiDAR scans and velocity labels |
+| `training/src/train.py` | Training loop for the PyTorch policy |
+| `scripts/data_prep.py` | Demonstration data preparation |
+| `scripts/train.py`, `scripts/eval.py` | Baseline behavior-cloning training and evaluation |
+| `docs/` | Thesis report, presentation, and course project report |
 
 ## Citation
 ```bibtex
@@ -163,5 +140,5 @@ MIT License
 ## Contact
 
 Shubham Jangle  
-sjang041@ucr.edu  
-MS Robotics Engineering, UC Riverside
+shubhamjangle13@gmail.com  
+MS Robotics, UC Riverside
